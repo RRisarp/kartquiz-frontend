@@ -406,17 +406,7 @@ function HostPage() {
             </button>
           </Link>
           
-          <p style={{
-            marginTop: '24px',
-            padding: '16px',
-            background: '#f0f9ff',
-            borderRadius: '12px',
-            fontSize: '14px',
-            color: '#0c4a6e',
-          }}>
-            💡 Standard lösenord: <code>quiz2025</code><br/>
-            Ändra detta i App.js (rad 12)
-          </p>
+
         </div>
       </div>
     );
