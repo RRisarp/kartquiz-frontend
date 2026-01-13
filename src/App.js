@@ -5,7 +5,7 @@ import L from 'leaflet';
 import io from 'socket.io-client';
 
 // Anslut till Socket.io-servern
-const socket = io('https://kartquiz-server-production.up.railway.app');
+const socket = io('http://localhost:3001');
 
 // ÄNDRA DETTA LÖSENORD!
 const HOST_PASSWORD = 'quiz2025';
@@ -168,6 +168,7 @@ function HostPage() {
     correctLat: null,
     correctLng: null,
     maxDistance: 500,
+    timeLimit: 0, // 0 = ingen tidsgräns
   });
 
   // Socket.io listeners
@@ -272,6 +273,7 @@ function HostPage() {
         correctLat: null,
         correctLng: null,
         maxDistance: 500,
+        timeLimit: 0,
       });
     }
   };
@@ -406,7 +408,17 @@ function HostPage() {
             </button>
           </Link>
           
-
+          <p style={{
+            marginTop: '24px',
+            padding: '16px',
+            background: '#f0f9ff',
+            borderRadius: '12px',
+            fontSize: '14px',
+            color: '#0c4a6e',
+          }}>
+            💡 Standard lösenord: <code>quiz2025</code><br/>
+            Ändra detta i App.js (rad 12)
+          </p>
         </div>
       </div>
     );
@@ -758,6 +770,22 @@ function HostPage() {
                   fontSize: '16px',
                   border: '2px solid #e2e8f0',
                   borderRadius: '12px',
+                  marginBottom: '12px',
+                  boxSizing: 'border-box',
+                }}
+              />
+              
+              <input
+                type="number"
+                placeholder="Tidsgräns (sekunder, 0 = ingen gräns)"
+                value={newQuestion.timeLimit}
+                onChange={(e) => setNewQuestion({...newQuestion, timeLimit: parseInt(e.target.value) || 0})}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  fontSize: '16px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '12px',
                   marginBottom: '16px',
                   boxSizing: 'border-box',
                 }}
@@ -862,7 +890,7 @@ function HostPage() {
                   <strong style={{ color: '#1e293b' }}>#{idx + 1}:</strong> {q.text}
                   {q.imageUrl && <span style={{ color: '#4ECDC4', marginLeft: '12px' }}>🖼️</span>}
                   <span style={{ color: '#64748b', marginLeft: '12px', fontSize: '14px' }}>
-                    (Max {q.maxDistance} km)
+                    (Max {q.maxDistance} km{q.timeLimit > 0 && `, ⏱️ ${q.timeLimit}s`})
                   </span>
                 </div>
                 <button
@@ -1163,6 +1191,7 @@ function PlayPage() {
   const [myGuess, setMyGuess] = useState(null);
   const [hasGuessed, setHasGuessed] = useState(false);
   const [myScore, setMyScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
     socket.on('join-success', (data) => {
@@ -1184,6 +1213,7 @@ function PlayPage() {
       setMyGuess(null);
       setHasGuessed(false);
       setMode('game');
+      setTimeLeft(data.timeLimit || null);
     });
 
     socket.on('guess-submitted', (data) => {
@@ -1207,6 +1237,7 @@ function PlayPage() {
       setShowingResults(false);
       setMyGuess(null);
       setHasGuessed(false);
+      setTimeLeft(data.timeLimit || null);
     });
 
     socket.on('quiz-finished', (data) => {
@@ -1232,6 +1263,25 @@ function PlayPage() {
     };
   }, [navigate, playerId]);
 
+  // Timer för nedräkning
+  useEffect(() => {
+    if (timeLeft === null || timeLeft === 0 || showingResults || hasGuessed) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setHasGuessed(true); // Låser kartan när tiden tar slut
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, showingResults, hasGuessed]);
+
   const joinQuiz = () => {
     if (playerName && roomCode) {
       socket.emit('join-room', { 
@@ -1242,7 +1292,7 @@ function PlayPage() {
   };
 
   const makeGuess = (latlng) => {
-    if (!hasGuessed) {
+    if (!hasGuessed && timeLeft !== 0) {
       setMyGuess(latlng);
     }
   };
@@ -1504,6 +1554,51 @@ function PlayPage() {
                 }}>
                   Fråga {currentQuestionData?.questionNumber} av {currentQuestionData?.totalQuestions}
                 </p>
+                
+                {timeLeft !== null && timeLeft > 0 && (
+                  <div style={{
+                    marginBottom: '16px',
+                  }}>
+                    <div style={{
+                      fontSize: '48px',
+                      fontWeight: '800',
+                      color: timeLeft <= 10 ? '#ef4444' : '#4ECDC4',
+                      marginBottom: '8px',
+                      animation: timeLeft <= 10 ? 'pulse 1s infinite' : 'none',
+                    }}>
+                      ⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: '8px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        width: `${(timeLeft / (currentQuestionData?.timeLimit || 1)) * 100}%`,
+                        height: '100%',
+                        background: timeLeft <= 10 ? 'linear-gradient(90deg, #ef4444, #dc2626)' : 'linear-gradient(90deg, #4ECDC4, #45B7D1)',
+                        transition: 'width 1s linear',
+                      }}></div>
+                    </div>
+                  </div>
+                )}
+                
+                {timeLeft === 0 && (
+                  <div style={{
+                    padding: '12px 24px',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    borderRadius: '12px',
+                    marginBottom: '16px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#ef4444',
+                  }}>
+                    ⏰ Tiden är ute!
+                  </div>
+                )}
+                
                 <h3 style={{
                   fontSize: '28px',
                   fontWeight: '700',
@@ -1663,7 +1758,17 @@ function PlayPage() {
     );
   }
 
-  return null;
+  return (
+    <>
+      {null}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+      `}</style>
+    </>
+  );
 }
 
 // Main App med Router
