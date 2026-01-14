@@ -1785,9 +1785,19 @@ function PlayPage() {
                     <h3 style={{ fontSize: '24px', marginBottom: '8px' }}>
                       🎉 Quiz Slut!
                     </h3>
-                    <p style={{ fontSize: '18px' }}>
+                    <p style={{ fontSize: '18px', marginBottom: '12px' }}>
                       Din slutpoäng: <strong>{myScore}</strong>
                     </p>
+                    {resultsData?.winner && (
+                      <p style={{ 
+                        fontSize: '20px', 
+                        fontWeight: '600',
+                        color: '#FFD700',
+                        marginTop: '12px'
+                      }}>
+                        👑 Vinnare: {resultsData.winner.playerName} ({resultsData.winner.score}p)
+                      </p>
+                    )}
                   </>
                 ) : (
                   'Väntar på nästa fråga...'
