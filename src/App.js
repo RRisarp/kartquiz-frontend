@@ -1774,11 +1774,24 @@ function PlayPage() {
               <div style={{
                 marginTop: '24px',
                 padding: '16px',
-                background: 'rgba(255,255,255,0.1)',
+                background: currentQuestionData?.questionNumber === currentQuestionData?.totalQuestions ? 
+                  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 
+                  'rgba(255,255,255,0.1)',
                 borderRadius: '12px',
                 textAlign: 'center',
               }}>
-                Väntar på nästa fråga...
+                {currentQuestionData?.questionNumber === currentQuestionData?.totalQuestions ? (
+                  <>
+                    <h3 style={{ fontSize: '24px', marginBottom: '8px' }}>
+                      🎉 Quiz Slut!
+                    </h3>
+                    <p style={{ fontSize: '18px' }}>
+                      Din slutpoäng: <strong>{myScore}</strong>
+                    </p>
+                  </>
+                ) : (
+                  'Väntar på nästa fråga...'
+                )}
               </div>
             </div>
           )}
