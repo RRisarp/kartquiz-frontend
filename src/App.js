@@ -407,15 +407,6 @@ function HostPage() {
               ← Tillbaka
             </button>
           </Link>
-          
-          <p style={{
-            marginTop: '24px',
-            padding: '16px',
-            background: '#f0f9ff',
-            borderRadius: '12px',
-            fontSize: '14px',
-            color: '#0c4a6e',
-          }}>
           </p>
         </div>
       </div>
