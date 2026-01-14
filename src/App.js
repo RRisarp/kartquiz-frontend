@@ -5,7 +5,7 @@ import L from 'leaflet';
 import io from 'socket.io-client';
 
 // Anslut till Socket.io-servern
-const socket = io('http://localhost:3001');
+const socket = io('https://kartquiz-server-production.up.railway.app');
 
 // ÄNDRA DETTA LÖSENORD!
 const HOST_PASSWORD = 'quiz2025';
@@ -416,8 +416,6 @@ function HostPage() {
             fontSize: '14px',
             color: '#0c4a6e',
           }}>
-            💡 Standard lösenord: <code>quiz2025</code><br/>
-            Ändra detta i App.js (rad 12)
           </p>
         </div>
       </div>
