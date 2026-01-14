@@ -165,6 +165,7 @@ function HostPage() {
   const [newQuestion, setNewQuestion] = useState({
     text: '',
     imageUrl: '',
+    audioUrl: '',
     correctLat: null,
     correctLng: null,
     maxDistance: 500,
@@ -270,6 +271,7 @@ function HostPage() {
       setNewQuestion({
         text: '',
         imageUrl: '',
+        audioUrl: '',
         correctLat: null,
         correctLng: null,
         maxDistance: 500,
@@ -747,7 +749,21 @@ function HostPage() {
                   boxSizing: 'border-box',
                 }}
               />
-              
+              <input
+                type="text"
+                placeholder="Ljud-URL (valfritt, .mp3 .wav .ogg)"
+                value={newQuestion.audioUrl}
+                onChange={(e) => setNewQuestion({...newQuestion, audioUrl: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  fontSize: '16px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '12px',
+                  marginBottom: '12px',
+                  boxSizing: 'border-box',
+                }}
+              />
               <input
                 type="number"
                 placeholder="Max avstånd för poäng (km)"
@@ -878,6 +894,7 @@ function HostPage() {
                 <div>
                   <strong style={{ color: '#1e293b' }}>#{idx + 1}:</strong> {q.text}
                   {q.imageUrl && <span style={{ color: '#4ECDC4', marginLeft: '12px' }}>🖼️</span>}
+                  {q.audioUrl && <span style={{ color: '#4ECDC4', marginLeft: '12px' }}>🎵</span>}
                   <span style={{ color: '#64748b', marginLeft: '12px', fontSize: '14px' }}>
                     (Max {q.maxDistance} km{q.timeLimit > 0 && `, ⏱️ ${q.timeLimit}s`})
                   </span>
@@ -1607,6 +1624,37 @@ function PlayPage() {
                       marginBottom: '20px',
                     }}
                   />
+                )}
+                
+                {currentQuestionData?.audioUrl && (
+                  <div style={{
+                    marginBottom: '20px',
+                    padding: '16px',
+                    background: 'rgba(78, 205, 196, 0.1)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(78, 205, 196, 0.3)',
+                  }}>
+                    <p style={{
+                      marginBottom: '12px',
+                      fontSize: '16px',
+                      color: '#4ECDC4',
+                      fontWeight: '600',
+                    }}>
+                      🎵 Lyssna på ljudet:
+                    </p>
+                    <audio
+                      controls
+                      autoPlay
+                      loop
+                      style={{
+                        width: '100%',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      <source src={currentQuestionData.audioUrl} />
+                      Din webbläsare stöder inte ljuduppspelning.
+                    </audio>
+                  </div>
                 )}
                 
                 {hasGuessed ? (
