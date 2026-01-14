@@ -169,7 +169,7 @@ function HostPage() {
     correctLat: null,
     correctLng: null,
     maxDistance: 500,
-    timeLimit: 0, // 0 = ingen tidsgräns
+    timeLimit: 0,
   });
 
   // Socket.io listeners
@@ -409,7 +409,6 @@ function HostPage() {
               ← Tillbaka
             </button>
           </Link>
-          </p>
         </div>
       </div>
     );
@@ -749,6 +748,7 @@ function HostPage() {
                   boxSizing: 'border-box',
                 }}
               />
+              
               <input
                 type="text"
                 placeholder="Ljud-URL (valfritt, .mp3 .wav .ogg)"
@@ -1642,21 +1642,13 @@ function PlayPage() {
                     }}>
                       🎵 Lyssna på ljudet:
                     </p>
-                    <audio
-                      controls
-                      autoPlay
-                      loop
-                      style={{
-                        width: '100%',
-                        borderRadius: '8px',
-                      }}
-                    >
+                    <audio controls autoPlay loop style={{ width: '100%', borderRadius: '8px' }}>
                       <source src={currentQuestionData.audioUrl} />
                       Din webbläsare stöder inte ljuduppspelning.
                     </audio>
                   </div>
                 )}
-                
+
                 {hasGuessed ? (
                   <div style={{
                     padding: '16px',
