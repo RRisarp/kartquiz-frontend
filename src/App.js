@@ -1729,6 +1729,51 @@ function PlayPage() {
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255,255,255,0.1)',
             }}>
+              <div style={{
+                height: '400px',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                marginBottom: '24px',
+              }}>
+                <MapContainer
+                  center={[resultsData?.correctAnswer.lat || 0, resultsData?.correctAnswer.lng || 0]}
+                  zoom={6}
+                  style={{ height: '100%', width: '100%' }}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <MapReset 
+                    center={[resultsData?.correctAnswer.lat || 0, resultsData?.correctAnswer.lng || 0]} 
+                    zoom={6} 
+                  />
+                  {/* Rätt svar */}
+                  {resultsData?.correctAnswer && (
+                    <Marker
+                      position={[resultsData.correctAnswer.lat, resultsData.correctAnswer.lng]}
+                      icon={correctIcon}
+                    >
+                      <Popup>
+                        <strong>Rätt svar</strong>
+                      </Popup>
+                    </Marker>
+                  )}
+                  {/* Min gissning */}
+                  {resultsData?.results.find(r => r.playerId === playerId) && (
+                    <Marker
+                      position={[
+                        resultsData.results.find(r => r.playerId === playerId).guess.lat,
+                        resultsData.results.find(r => r.playerId === playerId).guess.lng
+                      ]}
+                      icon={playerIcon}
+                    >
+                      <Popup>
+                        <strong>Din gissning</strong><br/>
+                        {resultsData.results.find(r => r.playerId === playerId).distance} km bort
+                      </Popup>
+                    </Marker>
+                  )}
+                </MapContainer>
+              </div>
+                            
               <h3 style={{
                 fontSize: '28px',
                 fontWeight: '700',
